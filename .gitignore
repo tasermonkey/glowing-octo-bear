@@ -16,3 +16,6 @@
 /tmp
 
 .idea
+
+#ignore the secrets file
+config/secrets.yml
