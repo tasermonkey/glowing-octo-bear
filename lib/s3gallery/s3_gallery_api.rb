@@ -21,5 +21,16 @@ class S3GalleryApi
     @last_recv = nil
   end
 
+  def enumerate_bucket
+    Enumerator.new do |g|
+      page = AWS::S3::Bucket.objects(@gallery_bucket, :marker => @last_recv, :max_keys => 1000)
+      until page.empty?
+        page.each do |i|
+          g.yield i
+        end
+        page = AWS::S3::Bucket.objects(@gallery_bucket, :marker => page[-1].key, :max_keys => 1000)
+      end
+    end
+  end
 
 end
