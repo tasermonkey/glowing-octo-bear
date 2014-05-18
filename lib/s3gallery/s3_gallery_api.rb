@@ -15,15 +15,17 @@ class S3GalleryApi
   def enumerate_bucket
     tmp = Enumerator.new do |g|
       puts "Entering in enumerator"
-      page = AWS::S3::Bucket.objects(@gallery_bucket, :marker => @last_recv, :max_keys => 20)
+      page = AWS::S3::Bucket.objects(@gallery_bucket, :marker => @last_recv, :max_keys => 100)
       puts "New page dog, of #{page.size} items!"
+      counter = 0
       until page.empty?
         page.each do |i|
-          puts "New Item!!! "
+          counter+=1
+          puts "#{counter}: New Item!!!"
           g.yield i
         end
         puts 'Acquiring next page!'
-        page = AWS::S3::Bucket.objects(@gallery_bucket, :marker => page[-1].key, :max_keys => 20)
+        page = AWS::S3::Bucket.objects(@gallery_bucket, :marker => page[-1].key, :max_keys => 100)
       end
     end
     tmp.lazy
@@ -40,48 +42,42 @@ class S3GalleryApi
   ##                          .map { |i| wrap_store_if_dirty(wrap_add_image_size(i)) }
   #####
 
-  def wrap_s3obj_with_api_meta
-    lambda { |s3obj| {:s3obj => s3obj, :dirty => false } }
+  def s3obj_to_s3_image
+    lambda { |s3obj| S3Image.new s3obj }
   end
 
   def wrap_filter_image_content_type
     lambda {|s3obj|
-      s3obj = s3obj[:s3obj] if s3obj.instance_of? Hash
       s3obj.content_type.start_with?('image/')
+    }
+  end
+
+  def wrap_add_guid
+    lambda { |s3objwithmeta|
+      raise 'Expected wrap_s3obj_with_api_meta to be called before this' unless s3objwithmeta.instance_of? S3Image
+      s3objwithmeta.guid
+      s3objwithmeta
     }
   end
 
   def wrap_add_image_size
     lambda { |s3objwithmeta|
-      raise 'Expected wrap_s3obj_with_api_meta to be called before this' if s3objwithmeta.instance_of? AWS::S3::S3Object
-      s3obj = s3objwithmeta[:s3obj]
-      return s3objwithmeta unless s3obj.metadata[:exif].nil? or s3obj.metadata[:imgwidth].nil? or s3obj.metadata[:imgheight].nil?
-      picdata = Image.from_blob(s3obj.value)[0]
-      exif = Hash[picdata.get_exif_by_entry.group_by { |i| i[0]}.map { |k, v| [k, v.map {|x| x[1]}] }]
-      s3obj.metadata[:exif] = JSON.generate(exif)
-      if s3obj.metadata[:exif].size > 2048
-        exif = Hash[exif.map { |k,v| [k, v.map {|x| x.slice(0, 128)}]}]
-        s3obj.metadata[:exif] = JSON.generate(exif)
+      raise 'Expected wrap_s3obj_with_api_meta to be called before this' unless s3objwithmeta.instance_of? S3Image
+      return s3objwithmeta unless s3objwithmeta.exif.nil? or s3objwithmeta.width.nil? or s3objwithmeta.height.nil?
+      picdata = s3objwithmeta.magick_image
+      if s3objwithmeta.exif.nil?
+        s3objwithmeta.generate_exif_from_s3img
       end
-      if s3obj.metadata[:exif].size > 2048
-        exif = exif.select {|k,v| %w(DateTimeDigitized DateTime XResolution YResolution ApertureValue ShutterSpeedValue FocalLength ImageUniqueID Model MaxApertureValue).include? v}
-        s3obj.metadata[:exif] = JSON.generate(exif)
-      end
-      if s3obj.metadata[:exif].size > 2048
-        puts "To large of a exif information(>2048): #{s3obj.metadata[:exif]}"
-        s3obj.metadata[:exif] = '{"error": "Unable to extract exif due to size of embedded exif"}'
-      end
-      s3obj.metadata[:imgwidth] = picdata.columns
-      s3obj.metadata[:imgheight] = picdata.rows
-      s3objwithmeta[:dirty] = true
+
+      s3objwithmeta.width = picdata.columns
+      s3objwithmeta.height = picdata.rows
       s3objwithmeta
     }
   end
 
   def wrap_store_if_dirty
-
     lambda { |s3objwithmeta|
-      raise 'Expected wrap_s3obj_with_api_meta to be called before this' if s3objwithmeta.instance_of? AWS::S3::S3Object
+      raise 'Expected wrap_s3obj_with_api_meta to be called before this' unless s3objwithmeta.instance_of? S3Image
       s3obj = s3objwithmeta[:s3obj]
       return s3objwithmeta unless s3objwithmeta[:dirty]
       s3obj.store

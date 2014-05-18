@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  original_filename: MyString
+  name: MyString
+  guid: MyString
+  s3url: MyString
+
+two:
+  original_filename: MyString
+  name: MyString
+  guid: MyString
+  s3url: MyString
