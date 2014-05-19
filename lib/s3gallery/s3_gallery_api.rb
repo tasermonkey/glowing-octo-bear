@@ -1,6 +1,4 @@
 require 'aws/s3'
-require 'rmagick'
-include Magick
 
 class S3GalleryApi
   def initialize(options = {:gallery_bucket => 'storage.photos.spstapleton.com'})

@@ -1,5 +1,5 @@
 require 'aws/s3'
-require 'rmagick'
+require 'RMagick'
 include Magick
 
 # This Class manages an Image on the S3 'File Store'.
