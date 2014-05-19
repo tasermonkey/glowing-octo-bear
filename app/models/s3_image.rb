@@ -161,6 +161,10 @@ class S3Image
     @s3obj.metadata[:imgheight] = new_height
   end
 
+  def etag
+    @s3obj.about[:etag]
+  end
+
   # Retrieves the raw data from S3 if needed, otherwise just returned the cached version
   # @return +S3Object::Value+
   def bytes
