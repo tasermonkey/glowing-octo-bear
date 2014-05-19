@@ -36,15 +36,21 @@ class GalleryDbIndexer
   def do_full_index
     p = @gap.enumerate_bucket
     np = p.find_all(&@gap.wrap_filter_image_content_type)
-    pipeline = np.map(&@gap.s3obj_to_s3_image)
-                 .map(&@gap.wrap_add_guid)
-                 .map(&@gap.wrap_add_image_size)
-                 .map(&self.wrap_insert_into_db)
-                 .map(&@gap.wrap_store_if_dirty)
+
+
+    pipeline = [@gap.s3obj_to_s3_image,
+                @gap.wrap_add_guid,
+                 @gap.wrap_add_image_size,
+                 self.wrap_insert_into_db,
+                 @gap.wrap_store_if_dirty]
     counter = 0
     start_time = DateTime.now
     seconds_in_day = 1.days.seconds
-    pipeline.each { |s3img|
+    np.each { |s3obj|
+      s3img = s3obj
+      pipeline.each { |f|
+        s3img = f.call s3img
+      }
       counter+=1
       if counter % 100 == 0
         puts "Ingested #{counter} items (#{((DateTime.now - start_time) * seconds_in_day) / counter} seconds/item"
