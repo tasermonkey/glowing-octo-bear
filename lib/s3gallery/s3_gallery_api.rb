@@ -1,5 +1,5 @@
 require 'aws/s3'
-require 'RMagick'
+require 'rmagick'
 include Magick
 
 class S3GalleryApi
@@ -37,9 +37,11 @@ class S3GalleryApi
   ## function (called first), whereas the wrap_store_if_dirty should be the outer most function(called last).
   ##
   ## Example:
-  ##    api.enumerate_bucket().map(&api.wrap_s3obj_with_api_meta(i))
+  ##    api.enumerate_bucket().map(&api.s3obj_to_s3_image)
   ##                          .filter(&api.wrap_filter_image_content_type)
-  ##                          .map { |i| wrap_store_if_dirty(wrap_add_image_size(i)) }
+  ##                          .map(&api.wrap_add_guid)
+  ##                          .map(&api.wrap_add_image_size)
+  ##                          .map(&api.wrap_store_if_dirty)
   #####
 
   def s3obj_to_s3_image
@@ -48,41 +50,40 @@ class S3GalleryApi
 
   def wrap_filter_image_content_type
     lambda {|s3obj|
+      # this works for both S3Image and S3Object
       s3obj.content_type.start_with?('image/')
     }
   end
 
   def wrap_add_guid
-    lambda { |s3objwithmeta|
-      raise 'Expected wrap_s3obj_with_api_meta to be called before this' unless s3objwithmeta.instance_of? S3Image
-      s3objwithmeta.guid
-      s3objwithmeta
+    lambda { |s3img|
+      raise 'Expected s3obj_to_s3_image to be called before this' unless s3img.instance_of? S3Image
+      s3img.guid!  # this will create a guid if it does not currently exist
+      s3img
     }
   end
 
   def wrap_add_image_size
-    lambda { |s3objwithmeta|
-      raise 'Expected wrap_s3obj_with_api_meta to be called before this' unless s3objwithmeta.instance_of? S3Image
-      return s3objwithmeta unless s3objwithmeta.exif.nil? or s3objwithmeta.width.nil? or s3objwithmeta.height.nil?
-      picdata = s3objwithmeta.magick_image
-      if s3objwithmeta.exif.nil?
-        s3objwithmeta.generate_exif_from_s3img
+    lambda { |s3img|
+      raise 'Expected s3obj_to_s3_image to be called before this' unless s3img.instance_of? S3Image
+      return s3img unless s3img.exif.nil? or s3img.width.nil? or s3img.height.nil?
+      picdata = s3img.magick_image
+      if s3img.exif.nil?
+        s3img.generate_exif_from_s3img
       end
 
-      s3objwithmeta.width = picdata.columns
-      s3objwithmeta.height = picdata.rows
-      s3objwithmeta
+      s3img.width = picdata.columns
+      s3img.height = picdata.rows
+      s3img
     }
   end
 
   def wrap_store_if_dirty
-    lambda { |s3objwithmeta|
-      raise 'Expected wrap_s3obj_with_api_meta to be called before this' unless s3objwithmeta.instance_of? S3Image
-      s3obj = s3objwithmeta[:s3obj]
-      return s3objwithmeta unless s3objwithmeta[:dirty]
-      s3obj.store
-      s3objwithmeta[:dirty] = false
-      s3objwithmeta
+    lambda { |s3img|
+      raise 'Expected s3obj_to_s3_image to be called before this' unless s3img.instance_of? S3Image
+      return s3img unless s3img.dirty?
+      s3img.save!
+      s3img
     }
   end
 

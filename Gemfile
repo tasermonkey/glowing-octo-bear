@@ -27,7 +27,8 @@ gem 'aws-s3', '~> 0.6.3' #, :git => 'https://github.com/marcel/aws-s3.git', :ref
 # probably only need one of these
 gem 'fastimage', '~> 1.6.2'
 gem 'imagesize', '~> 0.1.1'
-gem 'rmagick', '2.13.2'
+#gem 'RMagick', '2.13.2'
+gem 'rmagick', require: false
 
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0',          group: :doc
