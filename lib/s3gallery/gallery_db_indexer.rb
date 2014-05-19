@@ -43,7 +43,7 @@ class GalleryDbIndexer
                  .map(&@gap.wrap_store_if_dirty)
     counter = 0
     start_time = DateTime.now
-    seconds_in_day = 1.days.to_s
+    seconds_in_day = 1.days.seconds
     pipeline.each { |s3img|
       counter+=1
       if counter % 100 == 0
