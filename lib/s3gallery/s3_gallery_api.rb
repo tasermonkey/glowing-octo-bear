@@ -85,14 +85,27 @@ class S3GalleryApi
     end
   end
 
-  def create_thumbnail(picdata, tn)
-    thumbnail_image = nil
-    if tn[:style] == :resize_to_fill
-      thumbnail_image = picdata.resize_to_fill tn[:width], tn[:height]
-    else
-      thumbnail_image = picdata.resize_to_fill tn[:width], tn[:height]
+  def safe_s3_exists?(thumbnail_filename)
+    begin
+      AWS::S3::S3Object.exists? thumbnail_filename, @gallery_bucket
+    rescue
+      false
     end
-    thumbnail_image
+  end
+
+  def create_thumbnail(picdata, tn)
+    begin
+      thumbnail_image = nil
+      if tn[:style] == :resize_to_fill
+        thumbnail_image = picdata.resize_to_fill tn[:width], tn[:height]
+      else
+        thumbnail_image = picdata.resize_to_fill tn[:width], tn[:height]
+      end
+      thumbnail_image
+    rescue Exception => e
+      puts "ERROR: #{e.message}"
+      nil
+    end
   end
 
   def wrap_generate_thumbnail
@@ -106,10 +119,9 @@ class S3GalleryApi
 
       @thumbnail_size.each { |tn|
         thumbnail_filename = "#{@thumbnail_dir}/#{tn[:width]}x#{tn[:height]}/#{s3img.guid}.jpg"
-        thumbnail_s3obj = safe_s3_get thumbnail_filename
-        next unless thumbnail_s3obj.nil?
+        next unless safe_s3_exists? thumbnail_filename  # Already generated
         thumbnail_image = create_thumbnail picdata, tn
-
+        next if thumbnail_image.nil?
         # first do an empty store due to the fact that we will have to "download" it again in order to change the
         # metadata.
         response = S3Object.store thumbnail_filename, '', @gallery_bucket
