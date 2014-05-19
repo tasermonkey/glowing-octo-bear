@@ -99,11 +99,11 @@ class S3Image
 
     if str_exif.size > 2048
       new_exif = Hash[new_exif.map { |k,v| [k, v.map {|x| x.slice(0, 128)}]}]
-      str_exif = JSON.generate(exif)
+      str_exif = JSON.generate(new_exif)
     end
     if str_exif.size > 2048
       new_exif = new_exif.select {|k,v| %w(DateTimeDigitized DateTime XResolution YResolution ApertureValue ShutterSpeedValue FocalLength ImageUniqueID Model MaxApertureValue).include? v}
-      str_exif = JSON.generate(exif)
+      str_exif = JSON.generate(new_exif)
     end
     raise ArgumentError.new "Tried to set to large of a exif information(>2048) on #{self.key}" if str_exif.size > 2048
     # only reset this, and set our dirty bit, if its actually different
