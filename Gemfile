@@ -29,6 +29,8 @@ gem 'fastimage', '~> 1.6.2'
 gem 'imagesize', '~> 0.1.1'
 #gem 'RMagick', '2.13.2'
 gem 'rmagick', require: false
+gem 'ruby-progressbar', '~> 1.5.1'
+
 
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0',          group: :doc

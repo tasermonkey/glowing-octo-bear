@@ -4,7 +4,7 @@ class GalleryDbIndexer
   def initialize(options = {})
     @gap = options[:s3api] || S3GalleryApi.new(options)
   end
-
+  private
   def _new_photo_from_s3_image(s3img)
     Photo.new(
         :original_filename => s3img.filename,
@@ -16,7 +16,7 @@ class GalleryDbIndexer
         :height => s3img.height
     )
   end
-
+  public
   def wrap_insert_into_db
     lambda { |s3img|
       raise 'Expected s3obj_to_s3_image to be called before this' unless s3img.instance_of? S3Image
@@ -41,6 +41,7 @@ class GalleryDbIndexer
     pipeline = [@gap.s3obj_to_s3_image,
                 @gap.wrap_add_guid,
                  @gap.wrap_add_image_size,
+                 @gap.wrap_generate_thumbnail,
                  self.wrap_insert_into_db,
                  @gap.wrap_store_if_dirty]
     counter = 0

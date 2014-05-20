@@ -162,7 +162,11 @@ class S3Image
   end
 
   def etag
-    @s3obj.about[:etag]
+    @s3obj.about[:etag].delete '"'
+  end
+
+  def size
+    @s3obj.size
   end
 
   # Retrieves the raw data from S3 if needed, otherwise just returned the cached version
