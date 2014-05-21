@@ -181,6 +181,14 @@ class S3Image
     @s3obj.value = new_value
   end
 
+  def thumbnail(thumbnail_prefix)
+    S3Thumbnail.new(AWS::S3::S3Object.find("#{thumbnail_prefix}/#{self.guid}", self.s3obj.bucket))
+  end
+
+  def url
+    @s3obj.url
+  end
+
   # Retrieves the image from S3(if needed, as this is cached), then use RMagick to parse the image into an
   # +Image+
   # @return +Image+ of the S3Object

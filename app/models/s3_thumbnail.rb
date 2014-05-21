@@ -76,6 +76,10 @@ class S3Thumbnail
     @s3obj.metadata[:imgheight] = new_height
   end
 
+  def url
+    @s3obj.url
+  end
+
   def etag
     @s3obj.about[:etag]
   end

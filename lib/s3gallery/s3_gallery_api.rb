@@ -2,14 +2,18 @@ require 'aws/s3'
 
 class S3GalleryApi
   def initialize(options = {})
-    @gallery_bucket = options[:gallery_bucket] || 'storage.photos.spstapleton.com'
-    @gallery_dir = options[:gallery_dir] || 'galleries'
+    @gallery_bucket = options[:gallery_bucket] || Rails.application.config.app["gallery.s3bucket"]
+    @gallery_dir = options[:gallery_dir] || Rails.application.config.app["gallery.gallery_dir"]
     @gallery_dir.slice! 0 if @gallery_dir.start_with? '/'
     @thumbnail_size = options[:thumbnail_size] || [{width: 256, height: 256, style: :resize_to_fill},
                                                    {width: 800, height: 600, style: :resize_to_fit}]
-    @thumbnail_dir = options[:thumbnail_dir] || 'thumbnails'
+    @thumbnail_dir = options[:thumbnail_dir] || Rails.application.config.app["gallery.thumbnails.dir"]
 
     @last_recv = nil
+  end
+
+  def find(photo)
+    AWS::S3::S3Object.find photo.s3key, @gallery_bucket
   end
 
   def enumerate_bucket

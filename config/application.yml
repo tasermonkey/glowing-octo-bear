@@ -1,0 +1,17 @@
+defaults: &defaults
+  gallery.s3bucket: ''
+  gallery.gallery_dir: 'gallery'
+  gallery.thumbnails.dir: 'thumbnails'
+  gallery.thumbnails.size: '256x256'
+
+development:
+  <<: *defaults
+  gallery.s3bucket: 'storage.photos.spstapleton.com'
+
+test:
+  <<: *defaults
+  gallery.s3bucket: 'storage.photos.spstapleton.com'
+
+production:
+  <<: *defaults
+  gallery.s3bucket: 'storage.photos.spstapleton.com'
