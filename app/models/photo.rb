@@ -1,4 +1,7 @@
 class Photo < ActiveRecord::Base
+  has_many :album_items
+  has_many :albums, through: :album_items
+
   def thumbnail
     bucket = Rails.application.config.app["gallery.s3bucket"]
     thumbnail_dir = Rails.application.config.app["gallery.thumbnails.dir"]

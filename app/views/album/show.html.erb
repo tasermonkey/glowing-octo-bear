@@ -1,0 +1,15 @@
+<% if @album.parent %>
+    <%= link_to "Parent Album", @album.parent %><br/>
+<% elsif @album.has_siblings? %>
+    <%= link_to "Album List", album_index_path %><br/>
+<% end %>
+<% if @album.has_children? %>
+<h3>Sub-Albums</h3>
+<% @album.children.each do |child|%>
+    <%= link_to child.name, child %><br/>
+<% end %>
+<% end %>
+<h3>Photos</h3>
+<% @album.photos.each do |photo|%>
+    <a href="<%=photo.url%>"><img src="<%=photo.thumbnail %>" /><%=photo.name%></a>
+<% end %>

@@ -11,7 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140516212510) do
+ActiveRecord::Schema.define(version: 20140521223232) do
+
+  create_table "album_items", force: true do |t|
+    t.integer  "album_id"
+    t.integer  "photo_id"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "albums", force: true do |t|
+    t.string   "name"
+    t.string   "guid"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "ancestry"
+  end
+
+  add_index "albums", ["ancestry"], name: "index_albums_on_ancestry"
 
   create_table "photos", force: true do |t|
     t.string   "original_filename"
