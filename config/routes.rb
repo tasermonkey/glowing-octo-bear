@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
+  get 'photo/show'
+
   get 'album/index'
   get 'album/:id', to: 'album#show', as: 'album'
+  get 'photo/:id', to: 'photo#show', as: 'photo'
   get 'welcome/index'
 
   # The priority is based upon order of creation: first created -> highest priority.

@@ -3,6 +3,8 @@ defaults: &defaults
   gallery.gallery_dir: 'gallery'
   gallery.thumbnails.dir: 'thumbnails'
   gallery.thumbnails.size: '256x256'
+  gallery.webview.dir: 'thumbnails'
+  gallery.webview.size: '800x600'
 
 development:
   <<: *defaults

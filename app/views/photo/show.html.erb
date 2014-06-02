@@ -1,0 +1,12 @@
+<h1><%= @photo.name %></h1>
+Photo taken on: <%= @photo.date_time_original %>
+<% if @album_id %>
+    <br/><%= link_to "Return to album", album_path(@album_id) %>
+<% end %>
+<hr width="65%"/>
+<img src="<%=@photo.webView%>" /><br/>
+<a href="<%=@photo.url%>">Download Original</a><br/>
+<a href="#">Add to download cart</a>
+<hr width="65%"/>
+<h2>Comments</h2>
+Comments shall go here.

@@ -1,0 +1,4 @@
+<H1>Albums</H1>
+<% @roots.each do |album|%>
+    <%= link_to album.name, album_path(album) %><br/>
+<% end %>

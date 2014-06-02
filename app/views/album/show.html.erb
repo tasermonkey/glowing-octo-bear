@@ -11,5 +11,7 @@
 <% end %>
 <h3>Photos</h3>
 <% @album.photos.each do |photo|%>
-    <a href="<%=photo.url%>"><img src="<%=photo.thumbnail %>" /><%=photo.name%></a>
+    <%= link_to photo_path(photo, album: @album.id) do %>
+    <img src="<%=photo.thumbnail %>" /><%=photo.name%>
+    <% end %>
 <% end %>

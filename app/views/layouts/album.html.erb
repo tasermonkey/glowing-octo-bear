@@ -1,0 +1,26 @@
+<% content_for :content do %>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+      <!-- navigation side bar -->
+      <% @roots.each do |album|%>
+      <li class="nav-header">
+        <a href="#" data-toggle="collapse" data-target="#album<%=album.id%>">
+          <%=album.name%><i class="icon-angle-down"></i>
+        </a>
+        <ul style="list-style: none;" class="collapse" id="album<%=album.id%>">
+        <% album.children.each do |child|%>
+              <li><%= link_to child.name, album_path(child) %></li>
+        <% end %>
+        </ul>
+      </li>
+      <% end %>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <!-- Main album display -->
+        <%= yield %>
+    </div>
+  </div>
+</div>
+<% end %>
+<%= render template: "layouts/application" %>
