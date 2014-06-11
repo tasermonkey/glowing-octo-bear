@@ -1,4 +1,6 @@
 class AlbumController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     @roots = Album.roots
     if @roots.size == 1

@@ -24,6 +24,10 @@ gem 'jbuilder', '~> 2.0'
 gem 'bindata', '~> 2.1.0'
 gem 'aws-s3', '~> 0.6.3' #, :git => 'https://github.com/marcel/aws-s3.git', :ref => 'c4a99b34618ecc2990305fb52c685a9b0b7b8389'
 
+
+# for login
+gem 'devise', '~> 3.2.4'
+
 # probably only need one of these
 gem 'fastimage', '~> 1.6.2'
 gem 'imagesize', '~> 0.1.1'

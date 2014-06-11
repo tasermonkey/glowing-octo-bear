@@ -5,6 +5,7 @@ defaults: &defaults
   gallery.thumbnails.size: '256x256'
   gallery.webview.dir: 'thumbnails'
   gallery.webview.size: '800x600'
+  devise.mail.from: 'noreply@tasermonkeys.com'
 
 development:
   <<: *defaults
